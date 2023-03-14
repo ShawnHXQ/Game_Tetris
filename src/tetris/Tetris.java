@@ -29,21 +29,21 @@ class GameWindow extends JFrame
 {
     public static boolean start  = true;
     private static final long serialVersionUID = 1L;
-    //方块的边长
+    //block size
     public static final int BLOCK_SIZE = 20;
-    //窗口横向方块总数
+    //Horizon size
     public static final int HORIZON_NODES = Tetris.FRAME_WIDTH / BLOCK_SIZE;
-    //窗口竖直方块总数
+    //Vertical size
     public static final int VERTICAL_NODES = Tetris.FRAME_HEIGHT / BLOCK_SIZE;
-    //代表方块在窗口上的分布情况，0代表空，1代表正在移动的方块，2代表已经固定的方块
+    //stauts of block, 0 means empty, 1 means moving, 2 means placed 
     public static int[][] space = new int[VERTICAL_NODES][HORIZON_NODES];
-    //画布
+    //canvas
     private Canvas canvas;
-    //定时器
+    //timer
     private Timer timer;
-    //游戏得分
+    //score for game 
     private int score;
-    //七种图形，分别是田字型、一字型、正Z型、反Z型、正L型、反L型、T字型。每个图形包含4个方块。其中{0,0}为中心点。
+    //usually 7 shape and add one special dot shape, using array, and using (0,0) to be the center pointer. 
     private final int[][][] shapes = {
             {{-1,0},{0,0},{-1,1},{0,1}},// square shape
             {{-1,0},{0,0},{1,0}, {2,0}},  // line shape
@@ -54,10 +54,10 @@ class GameWindow extends JFrame
             {{-1,0},{0,0},{1,0}, {0,1}},// T shape
             {{0,0},{0,0},{0,0},{0,0}} // single dot
     };
-    //当前中心点的坐标
+    
     //current point position
     private Point centerPos = new Point();
-    //当前正在移动的图形的坐标
+   
     //current shape
     private int[][] currentShape = new int[4][2];
 
@@ -68,7 +68,7 @@ class GameWindow extends JFrame
         add(canvas);
         pack();
     }
-    //开始游戏
+    //start game, give the menu when first start game 
     public void startGame()
     {
 
@@ -83,7 +83,7 @@ class GameWindow extends JFrame
 
         timer.start();
     }
-    //随机选择一个图形
+    //random choose shape
     private void choseShape()
     {
         int index = (int) Math.round(Math.random() * 7);
@@ -98,7 +98,7 @@ class GameWindow extends JFrame
         centerPos.y = 0;
         updateSpace(1);
     }
-    //图形下移
+    //shape move down
     private boolean moveDown()
     {
         for (int i = 0; i < 4; i++)
@@ -113,7 +113,7 @@ class GameWindow extends JFrame
         updateSpace(1);
         return true;
     }
-    //图形旋转
+    //tansform the shape
     private void transform()
     {
         int[][] temp = new int[4][2];
@@ -141,7 +141,7 @@ class GameWindow extends JFrame
         currentShape = temp;
         updateSpace(1);
     }
-    //图形左移
+    //move to left 
     private void moveLeft()
     {
         for (int i = 0; i < 4; i++)
@@ -155,7 +155,7 @@ class GameWindow extends JFrame
         centerPos.x--;
         updateSpace(1);
     }
-    //图形右移
+    //move to right 
     private void moveRight()
     {
         for (int i = 0; i < 4; i++)
@@ -169,12 +169,12 @@ class GameWindow extends JFrame
         centerPos.x++;
         updateSpace(1);
     }
-    //固定图形
+    //settle down 
     private void fixBox()
     {
         updateSpace(2);
     }
-    //消除满行
+    //remove the line if is all filled 
     private void clearLine()
     {
         int y = centerPos.y + currentShape[0][1];
@@ -217,7 +217,7 @@ class GameWindow extends JFrame
             space[y][x] = flag;
         }
     }
-    //判断是否触顶
+    //check if is out of the bound: game over
     private boolean gameOver()
     {
         for (int i = 0; i < 4; i++)
@@ -227,25 +227,25 @@ class GameWindow extends JFrame
         }
         return false;
     }
-    //定时器监听
+    //timer to check every action 
     class TimerHandler implements ActionListener
     {
         public void actionPerformed(ActionEvent e)
         {
             if (!moveDown())
             {
-                fixBox();
-                clearLine();
-                timer.stop();
+                fixBox(); // check if need to fix 
+                clearLine(); // check if need to remove the line 
+                timer.stop();  // stop timer 
                 if (gameOver())
                     JOptionPane.showMessageDialog(GameWindow.this, String.format("GameOver，Your got points: %d", score));
                 else
                     startGame();
             }
-            canvas.repaint();
+            canvas.repaint(); update the change in canvas 
         }
     }
-    //处理方向键
+    //key function 
     private class KeyHandler extends KeyAdapter
     {
         public void keyPressed(KeyEvent e)
@@ -253,22 +253,22 @@ class GameWindow extends JFrame
             super.keyPressed(e);
             switch (e.getKeyCode())
             {
-                case KeyEvent.VK_UP:
+                case KeyEvent.VK_UP:  // transfrom sheap
                     transform();
                     canvas.repaint();
                     break;
-                case KeyEvent.VK_DOWN:
+                case KeyEvent.VK_DOWN: // quicker drop 
                     timer.setDelay(30);
                     break;
-                case KeyEvent.VK_LEFT:
+                case KeyEvent.VK_LEFT: // move left 
                     moveLeft();
                     canvas.repaint();
                     break;
-                case KeyEvent.VK_RIGHT:
+                case KeyEvent.VK_RIGHT: // move right 
                     moveRight();
                     canvas.repaint();
                     break;
-                case KeyEvent.VK_SPACE:
+                case KeyEvent.VK_SPACE:  // stop || continue
                     if(timer.isRunning()){
                         timer.stop();
                         stopMessage();
@@ -298,7 +298,7 @@ class Canvas extends JComponent
             for (int j = 0; j < GameWindow.HORIZON_NODES; j ++)
             {
                 if (GameWindow.space[i][j] != 0)
-                    g2.fillRect(j * 20, i * 20, 19, 19);
+                    g2.fillRect(j * 20, i * 20, 19, 19);// use 19 to make each block has thin line between 
             }
         }
     }
